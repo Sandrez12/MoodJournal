@@ -1,18 +1,28 @@
-import { useState } from 'react';
-import { BookOpen, Sparkles, Save, Loader2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
+import { BookOpen, Sparkles, Save, Loader2, Edit, X } from 'lucide-react';
+import { supabase, JournalEntry as JournalEntryType } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 interface JournalEntryProps {
   onEntrySaved: () => void;
+  todayEntry?: JournalEntryType | null;
 }
 
-export function JournalEntry({ onEntrySaved }: JournalEntryProps) {
+export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
   const [content, setContent] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (todayEntry && isEditing) {
+      setContent(todayEntry.content);
+    } else if (!isEditing) {
+      setContent('');
+    }
+  }, [todayEntry, isEditing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,20 +57,51 @@ export function JournalEntry({ onEntrySaved }: JournalEntryProps) {
       setIsAnalyzing(false);
       setIsSaving(true);
 
-      const { error: insertError } = await supabase
-        .from('journal_entries')
-        .insert({
-          user_id: user!.id,
-          content: content.trim(),
-          sentiment: analysis.sentiment,
-          sentiment_score: analysis.score,
-          ai_summary: analysis.summary,
-          entry_date: new Date().toISOString().split('T')[0],
-        });
+      if (isEditing && todayEntry) {
+        const { error: updateError } = await supabase
+          .from('journal_entries')
+          .update({
+            content: content.trim(),
+            sentiment: analysis.sentiment,
+            sentiment_score: analysis.score,
+            ai_summary: analysis.summary,
+          })
+          .eq('id', todayEntry.id);
 
-      if (insertError) throw insertError;
+        if (updateError) throw updateError;
+      } else {
+        const today = new Date().toISOString().split('T')[0];
+
+        const { data: existingEntry } = await supabase
+          .from('journal_entries')
+          .select('id')
+          .eq('user_id', user!.id)
+          .eq('entry_date', today)
+          .maybeSingle();
+
+        if (existingEntry) {
+          setError('You already have an entry for today. Edit it instead.');
+          setIsAnalyzing(false);
+          setIsSaving(false);
+          return;
+        }
+
+        const { error: insertError } = await supabase
+          .from('journal_entries')
+          .insert({
+            user_id: user!.id,
+            content: content.trim(),
+            sentiment: analysis.sentiment,
+            sentiment_score: analysis.score,
+            ai_summary: analysis.summary,
+            entry_date: today,
+          });
+
+        if (insertError) throw insertError;
+      }
 
       setContent('');
+      setIsEditing(false);
       onEntrySaved();
     } catch (err: any) {
       setError(err.message || 'Failed to save entry');
@@ -70,16 +111,65 @@ export function JournalEntry({ onEntrySaved }: JournalEntryProps) {
     }
   };
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setContent('');
+    setError('');
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setError('');
+  };
+
+  if (todayEntry && !isEditing) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <BookOpen className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Today's Entry Saved</h2>
+              <p className="text-sm text-gray-600">You can edit it if you want to add more</p>
+            </div>
+          </div>
+          <button
+            onClick={handleStartEdit}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
+          >
+            <Edit className="w-4 h-4" />
+            Edit Entry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <BookOpen className="w-6 h-6 text-blue-600" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <BookOpen className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {isEditing ? 'Edit Today\'s Entry' : 'How are you feeling today?'}
+            </h2>
+            <p className="text-sm text-gray-600">Share your thoughts and emotions</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">How are you feeling today?</h2>
-          <p className="text-sm text-gray-600">Share your thoughts and emotions</p>
-        </div>
+        {isEditing && (
+          <button
+            onClick={handleCancelEdit}
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,7 +209,7 @@ export function JournalEntry({ onEntrySaved }: JournalEntryProps) {
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                Save Entry
+                {isEditing ? 'Update Entry' : 'Save Entry'}
               </>
             )}
           </button>

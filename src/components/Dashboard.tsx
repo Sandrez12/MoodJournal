@@ -43,6 +43,9 @@ export function Dashboard() {
     setLoading(false);
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const todayEntry = entries.find(e => e.entry_date === today) || null;
+
   useEffect(() => {
     loadData();
   }, [user]);
@@ -92,7 +95,7 @@ export function Dashboard() {
           </div>
         )}
 
-        <JournalEntryComponent onEntrySaved={loadData} />
+        <JournalEntryComponent onEntrySaved={loadData} todayEntry={todayEntry} />
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatCard
@@ -148,7 +151,7 @@ export function Dashboard() {
           ) : (
             <div className="space-y-4">
               {entries.map((entry) => (
-                <EntryCard key={entry.id} entry={entry} />
+                <EntryCard key={entry.id} entry={entry} onDelete={loadData} />
               ))}
             </div>
           )}
