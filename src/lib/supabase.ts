@@ -35,3 +35,23 @@ export interface MotivationalQuote {
   sentiment_type: 'positive' | 'negative' | 'neutral' | 'all';
   created_at: string;
 }
+
+export interface UserPreferences {
+  id: string;
+  user_id: string;
+  theme: 'light' | 'dark';
+  reminder_enabled: boolean;
+  reminder_time: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserStreak {
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_entry_date: string;
+  created_at: string;
+  updated_at: string;
+}

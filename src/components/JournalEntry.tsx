@@ -124,15 +124,15 @@ export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
 
   if (todayEntry && !isEditing) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <BookOpen className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <BookOpen className="w-6 h-6 text-green-600 dark:text-green-300" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Today's Entry Saved</h2>
-              <p className="text-sm text-gray-600">You can edit it if you want to add more</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Today's Entry Saved</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">You can edit it if you want to add more</p>
             </div>
           </div>
           <button
@@ -148,23 +148,23 @@ export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <BookOpen className="w-6 h-6 text-blue-600" />
+          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+            <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-300" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {isEditing ? 'Edit Today\'s Entry' : 'How are you feeling today?'}
             </h2>
-            <p className="text-sm text-gray-600">Share your thoughts and emotions</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Share your thoughts and emotions</p>
           </div>
         </div>
         {isEditing && (
           <button
             onClick={handleCancelEdit}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
             Cancel
@@ -177,18 +177,18 @@ export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Today I feel... Write freely about your day, emotions, thoughts, or anything on your mind."
-          className="w-full h-40 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-shadow"
+          className="w-full h-40 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-shadow"
           disabled={isAnalyzing || isSaving}
         />
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {content.length} characters
           </div>
           <button

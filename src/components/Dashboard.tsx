@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Smile, Frown, Meh, Calendar, TrendingUp, LogOut, Sparkles } from 'lucide-react';
+import { Smile, Frown, Meh, Calendar, TrendingUp, LogOut, Sparkles, Settings } from 'lucide-react';
 import { supabase, JournalEntry, MotivationalQuote } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { JournalEntry as JournalEntryComponent } from './JournalEntry';
 import { EntryCard } from './EntryCard';
 import { StatCard } from './StatCard';
 import { EmotionalChart } from './EmotionalChart';
+import { StreakDisplay } from './StreakDisplay';
+import { SettingsModal } from './SettingsModal';
 
 export function Dashboard() {
   const { user, profile, signOut } = useAuth();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [quote, setQuote] = useState<MotivationalQuote | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -60,25 +63,34 @@ export function Dashboard() {
   const last7Days = entries.slice(0, 7).reverse();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl shadow-md">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">MoodJournal</h1>
-              <p className="text-sm text-gray-600">Welcome back, {profile?.full_name || 'Friend'}</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">MoodJournal</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Welcome back, {profile?.full_name || 'Friend'}</p>
             </div>
           </div>
-          <button
-            onClick={() => signOut()}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              Settings
+            </button>
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
@@ -95,6 +107,8 @@ export function Dashboard() {
           </div>
         )}
 
+        <StreakDisplay />
+
         <JournalEntryComponent onEntrySaved={loadData} todayEntry={todayEntry} />
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -102,49 +116,49 @@ export function Dashboard() {
             icon={Calendar}
             label="Total Entries"
             value={stats.total}
-            color="bg-gray-100 text-gray-600"
+            color="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
           />
           <StatCard
             icon={Smile}
             label="Positive Days"
             value={stats.positive}
-            color="bg-green-100 text-green-600"
+            color="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300"
           />
           <StatCard
             icon={Meh}
             label="Neutral Days"
             value={stats.neutral}
-            color="bg-blue-100 text-blue-600"
+            color="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
           />
           <StatCard
             icon={Frown}
             label="Challenging Days"
             value={stats.negative}
-            color="bg-orange-100 text-orange-600"
+            color="bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300"
           />
         </div>
 
         {last7Days.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-300" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Your Emotional Journey</h2>
-                <p className="text-sm text-gray-600">Last 7 days overview</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Emotional Journey</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Last 7 days overview</p>
               </div>
             </div>
             <EmotionalChart entries={last7Days} />
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Entries</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Recent Entries</h2>
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading entries...</div>
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading entries...</div>
           ) : entries.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <p className="mb-2">No entries yet</p>
               <p className="text-sm">Start your emotional wellness journey by writing your first entry above!</p>
             </div>
@@ -157,6 +171,8 @@ export function Dashboard() {
           )}
         </div>
       </main>
+
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

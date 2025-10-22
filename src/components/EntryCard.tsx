@@ -62,9 +62,9 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Calendar className="w-4 h-4" />
           {formattedDate}
         </div>
@@ -85,27 +85,27 @@ export function EntryCard({ entry, onDelete }: EntryCardProps) {
         </div>
       </div>
 
-      <p className="text-gray-800 mb-3 leading-relaxed">{entry.content}</p>
+      <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed">{entry.content}</p>
 
       {entry.ai_summary && (
-        <div className={`${config.bg} border-l-4 border-${entry.sentiment === 'positive' ? 'green' : entry.sentiment === 'negative' ? 'orange' : 'blue'}-500 p-3 rounded`}>
-          <p className={`text-sm ${config.color} font-medium mb-1`}>AI Insight</p>
-          <p className="text-sm text-gray-700">{entry.ai_summary}</p>
+        <div className={`${config.bg} dark:bg-opacity-20 border-l-4 border-${entry.sentiment === 'positive' ? 'green' : entry.sentiment === 'negative' ? 'orange' : 'blue'}-500 p-3 rounded`}>
+          <p className={`text-sm ${config.color} dark:brightness-125 font-medium mb-1`}>AI Insight</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">{entry.ai_summary}</p>
         </div>
       )}
 
       {showConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Entry?</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Entry?</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Are you sure you want to delete this journal entry? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
