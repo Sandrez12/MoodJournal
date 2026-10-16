@@ -9,7 +9,7 @@ export function EmotionalChart({ entries }: EmotionalChartProps) {
 
   return (
     <div className="space-y-4">
-      {entries.map((entry, index) => {
+      {entries.map((entry) => {
         const date = new Date(entry.entry_date);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { analyzeSentiment } from '../lib/sentiment';
 import { BookOpen, Sparkles, Save, Loader2, Edit, X } from 'lucide-react';
 import { supabase, JournalEntry as JournalEntryType } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,23 +37,8 @@ export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
     setIsAnalyzing(true);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-sentiment`;
-      const headers = {
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      };
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ text: content }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze sentiment');
-      }
-
-      const analysis = await response.json();
+      // El análisis se hace en el navegador (español e inglés): no depende de servicios externos.
+      const analysis = analyzeSentiment(content);
 
       setIsAnalyzing(false);
       setIsSaving(true);
@@ -103,8 +89,8 @@ export function JournalEntry({ onEntrySaved, todayEntry }: JournalEntryProps) {
       setContent('');
       setIsEditing(false);
       onEntrySaved();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save entry');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save entry');
     } finally {
       setIsAnalyzing(false);
       setIsSaving(false);
